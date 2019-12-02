@@ -6,7 +6,9 @@ https://arxiv.org/abs/1811.00656
 import tensorflow as tf
 import os
 import tensorflow.contrib.slim as slim
+
 pwd = os.path.dirname(__file__)
+
 
 class Solver(object):
 
@@ -49,7 +51,7 @@ class Solver(object):
         self.sess.run(tf.global_variables_initializer())
         if cfg.PRETRAINED_MODELS != '':
             self.load_ckpt(cfg.PRETRAINED_MODELS)
-        else: # Load ckpt
+        else:  # Load ckpt
             self.load()
 
     def test(self, images):
@@ -62,7 +64,6 @@ class Solver(object):
             self.net.prob
         ]
         prob, = self.sess.run(fetch_list, feed_dict=feed_dict)
-
 
         return prob
 
@@ -120,9 +121,9 @@ class Solver(object):
         )
 
         self.train_op = slim.learning.create_train_op(total_loss=self.net.total_loss,
-                                                       optimizer=optimizer,
-                                                       global_step=self.global_step
-                                                       )
+                                                      optimizer=optimizer,
+                                                      global_step=self.global_step
+                                                      )
 
     def get_restore_var_list(self, path):
         """
@@ -145,6 +146,3 @@ class Solver(object):
         """List all variables in checkpoint"""
         saved_vars = tf.contrib.framework.list_variables(path)  # List of tuples (name, shape)
         return saved_vars
-
-
-

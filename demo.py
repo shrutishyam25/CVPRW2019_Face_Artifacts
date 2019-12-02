@@ -14,8 +14,6 @@ from py_utils.face_utils import lib
 from py_utils.vid_utils import proc_vid as pv
 import logging
 
-
-
 print('***********')
 print('Detecting DeepFake images, prob == -1 denotes opt out')
 print('***********')
@@ -31,7 +29,7 @@ front_face_detector = dlib.get_frontal_face_detector()
 lmark_predictor = dlib.shape_predictor(pwd + '/dlib_model/shape_predictor_68_face_landmarks.dat')
 
 tfconfig = tf.ConfigProto(allow_soft_placement=True)
-tfconfig.gpu_options.allow_growth=True
+tfconfig.gpu_options.allow_growth = True
 # init session
 sess = tf.Session(config=tfconfig)
 # Build network
@@ -43,7 +41,7 @@ solver.init()
 
 
 def im_test(im):
-    face_info = lib.align(im[:, :, (2,1,0)], front_face_detector, lmark_predictor)
+    face_info = lib.align(im[:, :, (2, 1, 0)], front_face_detector, lmark_predictor)
     # Samples
     if len(face_info) == 0:
         logging.warning('No faces are detected.')
@@ -67,7 +65,7 @@ def im_test(im):
     return prob
 
 
-def run(input_dir):
+def run(input_dir, output_path):
     logging.basicConfig(filename='run.log', filemode='w', format='[%(asctime)s - %(levelname)s] %(message)s',
                         level=logging.INFO)
 
@@ -75,6 +73,8 @@ def run(input_dir):
     prob_list = []
     for f_name in f_list:
         # Parse video
+        if f_name.split('.')[-1] == 'txt':  # output file with probabilities
+            continue
         f_path = os.path.join(input_dir, f_name)
         print('Testing: ' + f_path)
         logging.info('Testing: ' + f_path)
@@ -107,13 +107,20 @@ def run(input_dir):
         prob_list.append(prob)
         print('Prob: ' + str(prob))
 
+        output_file = open(output_path, "a")
+        output = 'Input video: ' + str(input_dir) + '  ' + str(f_name) + '   Fake prob: ' + str(prob) + '\n'
+        output_file.write(output)
+        output_file.close()
+
     sess.close()
     return prob_list
 
 
 if __name__ == '__main__':
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--input_dir', type=str, default='demo')
+    parser.add_argument('--output_path', type=str, default='output.txt')
     args = parser.parse_args()
-    run(args.input_dir)
+    run(args.input_dir, args.output_path)
