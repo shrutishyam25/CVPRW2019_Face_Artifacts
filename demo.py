@@ -89,6 +89,8 @@ def run(input_dir, output_path):
         elif suffix.lower() in ['mp4', 'avi', 'mov']:
             # Parse video
             imgs, frame_num, fps, width, height = pv.parse_vid(f_path)
+            print("Parsing video...")
+            print("num of frames:", frame_num, "fps:", fps)
             probs = []
             for fid, im in enumerate(imgs):
                 logging.info('Frame ' + str(fid))
@@ -108,7 +110,7 @@ def run(input_dir, output_path):
         print('Prob: ' + str(prob))
 
         output_file = open(output_path, "a")
-        output = 'Input video: ' + str(input_dir) + '  ' + str(f_name) + '   Fake prob: ' + str(prob) + '\n'
+        output = 'Input video: ' + str(input_dir) + '       ' + str(f_name) + '     Fake prob: ' + str(prob) + '\n'
         output_file.write(output)
         output_file.close()
 
@@ -121,6 +123,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--input_dir', type=str, default='demo')
-    parser.add_argument('--output_path', type=str, default='output.txt')
+    parser.add_argument('--output_path', type=str)
     args = parser.parse_args()
+    if args.output_path is None:
+        args.output_path = os.path.join(args.input_dir, 'output.txt')
     run(args.input_dir, args.output_path)
